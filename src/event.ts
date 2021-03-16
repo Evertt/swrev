@@ -1,6 +1,6 @@
 import { Subject } from "rxjs"
 
-export default class EventEmitter {
+export class EventEmitter {
   private subjects: Record<string, Subject<any>> = {}
 
   listen<T = any>(name: string, handler: (payload: T) => void) {

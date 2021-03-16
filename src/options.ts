@@ -1,5 +1,5 @@
 import { DefaultCache, SWRCache, CacheClearOptions } from './cache'
-import EventEmitter from './event'
+import { EventEmitter } from './event'
 import { SWRKey } from './key'
 
 /**

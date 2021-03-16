@@ -1,5 +1,12 @@
 import { Subscription } from 'rxjs';
 
+declare class EventEmitter {
+    private subjects;
+    listen<T = any>(name: string, handler: (payload: T) => void): Subscription;
+    emit<T = any>(name: string, payload: T): void;
+    dispose(): void;
+}
+
 /**
  * Determines the type of the SWR keys.
  */
@@ -157,13 +164,6 @@ declare class DefaultCache implements SWRCache {
      * Broadcasts a value change  on all subscribed instances.
      */
     broadcast<D>(key: SWRKey, payload: D): void;
-}
-
-declare class EventEmitter {
-    private subjects;
-    listen<T = any>(name: string, handler: (payload: T) => void): Subscription;
-    emit<T = any>(name: string, payload: T): void;
-    dispose(): void;
 }
 
 /**
@@ -368,4 +368,4 @@ declare class SWR {
     };
 }
 
-export { CacheClearOptions, CacheItem, CacheItemData, CacheRemoveOptions, DefaultCache, SWR, SWRCache, SWRFetcher, SWRFunctionStateValue, SWRKey, SWRMutateOptions, SWRMutateValue, SWROptions, SWRRevalidateOptions, defaultCacheClearOptions, defaultCacheRemoveOptions, defaultClearOptions, defaultMutateOptions, defaultOptions, defaultRevalidateOptions };
+export { CacheClearOptions, CacheItem, CacheItemData, CacheRemoveOptions, DefaultCache, EventEmitter, SWR, SWRCache, SWRFetcher, SWRFunctionStateValue, SWRKey, SWRMutateOptions, SWRMutateValue, SWROptions, SWRRevalidateOptions, defaultCacheClearOptions, defaultCacheRemoveOptions, defaultClearOptions, defaultMutateOptions, defaultOptions, defaultRevalidateOptions };

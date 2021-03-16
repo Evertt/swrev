@@ -1,5 +1,5 @@
 import { Subscription } from "rxjs"
-import EventEmitter from './event'
+import { EventEmitter } from './event'
 import { SWRKey } from './key'
 
 /**
