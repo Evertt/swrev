@@ -1,5 +1,5 @@
 import { DefaultCache, SWRCache, CacheClearOptions } from './cache'
-import { EventTarget } from './eventTarget'
+import EventEmitter from './event'
 import { SWRKey } from './key'
 
 /**
@@ -20,7 +20,7 @@ export interface SWROptions<D = any> {
    * Determines the error event target where
    * the errors will be dispatched.
    */
-  errors: EventTarget
+  errors: EventEmitter
 
   /**
    * Determines the fetcher function to use.
@@ -88,7 +88,7 @@ const fetcher = <D>(url: SWRKey): Promise<D> => {
  */
 export const defaultOptions: SWROptions = {
   cache: new DefaultCache(),
-  errors: new EventTarget(),
+  errors: new EventEmitter(),
   fetcher,
   initialData: undefined,
   loadInitialCache: true,

@@ -1,4 +1,4 @@
-import EventTarget$1 from '@ungap/event-target';
+import { Subscription } from 'rxjs';
 
 /**
  * Determines the type of the SWR keys.
@@ -100,15 +100,11 @@ interface SWRCache {
     /**
      * Subscribes to the given key for changes.
      */
-    subscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void;
-    /**
-     * Unsubscribes to the given key events.
-     */
-    unsubscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void;
+    subscribe<D>(key: SWRKey, callback: (event: D) => void): Subscription;
     /**
      * Broadcasts a value change to all subscribed instances.
      */
-    broadcast<D>(key: SWRKey, detail: D): void;
+    broadcast<D>(key: SWRKey, payload: D): void;
 }
 /**
  * Default cache implementation for vue-cache.
@@ -156,15 +152,18 @@ declare class DefaultCache implements SWRCache {
     /**
      * Subscribes the callback to the given key.
      */
-    subscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void;
-    /**
-     * Unsubscribes to the given key events.
-     */
-    unsubscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void;
+    subscribe<D>(key: SWRKey, callback: (event: D) => void): Subscription;
     /**
      * Broadcasts a value change  on all subscribed instances.
      */
-    broadcast<D>(key: SWRKey, detail: D): void;
+    broadcast<D>(key: SWRKey, payload: D): void;
+}
+
+declare class EventEmitter {
+    private subjects;
+    listen<T = any>(name: string, handler: (payload: T) => void): Subscription;
+    emit<T = any>(name: string, payload: T): void;
+    dispose(): void;
 }
 
 /**
@@ -183,7 +182,7 @@ interface SWROptions<D = any> {
      * Determines the error event target where
      * the errors will be dispatched.
      */
-    errors: EventTarget$1;
+    errors: EventEmitter;
     /**
      * Determines the fetcher function to use.
      */
@@ -296,7 +295,7 @@ declare class SWR {
     /**
      * Gets the cache of the SWR.
      */
-    protected get errors(): EventTarget;
+    protected get errors(): EventEmitter;
     /**
      * Requests the data using the provided fetcher.
      */
@@ -356,7 +355,7 @@ declare class SWR {
     /**
      * Gets an element from the cache. The difference
      * with the get is that this method returns a promise
-     * that will resolve the the value. If there's no item
+     * that will resolve the value. If there's no item
      * in the cache, it will wait for it before resolving.
      */
     getOrWait<D = any>(key: SWRKey): Promise<D>;

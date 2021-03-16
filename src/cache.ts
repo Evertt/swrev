@@ -1,4 +1,5 @@
-import { EventTarget } from './eventTarget'
+import { Subscription } from "rxjs"
+import EventEmitter from './event'
 import { SWRKey } from './key'
 
 /**
@@ -127,17 +128,12 @@ export interface SWRCache {
   /**
    * Subscribes to the given key for changes.
    */
-  subscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void
-
-  /**
-   * Unsubscribes to the given key events.
-   */
-  unsubscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void
+  subscribe<D>(key: SWRKey, callback: (event: D) => void): Subscription
 
   /**
    * Broadcasts a value change to all subscribed instances.
    */
-  broadcast<D>(key: SWRKey, detail: D): void
+  broadcast<D>(key: SWRKey, payload: D): void
 }
 
 /**
@@ -152,7 +148,7 @@ export class DefaultCache implements SWRCache {
   /**
    * Stores the event target instance to dispatch and receive events.
    */
-  private event: EventTarget = new EventTarget()
+  private event: EventEmitter = new EventEmitter()
 
   /**
    * Resolves the promise and replaces the Promise to the resolved data.
@@ -221,21 +217,14 @@ export class DefaultCache implements SWRCache {
   /**
    * Subscribes the callback to the given key.
    */
-  subscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void {
-    this.event.addEventListener(key, callback as EventListener)
-  }
-
-  /**
-   * Unsubscribes to the given key events.
-   */
-  unsubscribe<D>(key: SWRKey, callback: (event: CustomEvent<D>) => void): void {
-    this.event.removeEventListener(key, callback as EventListener)
+  subscribe<D>(key: SWRKey, callback: (event: D) => void): Subscription {
+    return this.event.listen(key, callback)
   }
 
   /**
    * Broadcasts a value change  on all subscribed instances.
    */
-  broadcast<D>(key: SWRKey, detail: D) {
-    this.event.dispatchEvent(new CustomEvent(key, { detail }))
+  broadcast<D>(key: SWRKey, payload: D) {
+    this.event.emit(key, payload)
   }
 }

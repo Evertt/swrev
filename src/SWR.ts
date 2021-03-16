@@ -1,4 +1,5 @@
 import { SWRCache, CacheItem, CacheClearOptions } from './cache'
+import EventEmitter from './event'
 import { SWRKey } from './key'
 import {
   SWROptions,
@@ -47,7 +48,7 @@ export class SWR {
   /**
    * Gets the cache of the SWR.
    */
-  protected get errors(): EventTarget {
+  protected get errors(): EventEmitter {
     return this.options.errors
   }
 
@@ -55,8 +56,8 @@ export class SWR {
    * Requests the data using the provided fetcher.
    */
   protected requestData<D>(key: SWRKey, fetcher: SWRFetcher<D>): Promise<D | undefined> {
-    return fetcher(key).catch((detail) => {
-      this.errors.dispatchEvent(new CustomEvent(key, { detail }))
+    return fetcher(key).catch((payload) => {
+      this.errors.emit(key, payload)
       return undefined
     })
   }
@@ -174,9 +175,8 @@ export class SWR {
    */
   subscribe<D>(key: SWRKey | undefined, onData: (value: D) => any) {
     if (key) {
-      const handler = ({ detail }: CustomEvent<D>) => onData(detail)
-      this.cache.subscribe(key, handler)
-      return () => this.cache.unsubscribe(key, handler)
+      const subscription = this.cache.subscribe(key, onData)
+      return () => subscription.unsubscribe()
     }
     return () => undefined
   }
@@ -186,9 +186,8 @@ export class SWR {
    */
   subscribeErrors<E>(key: SWRKey | undefined, onError: (error: E) => any) {
     if (key) {
-      const handler = ({ detail }: CustomEvent<E>) => onError(detail)
-      this.errors.addEventListener(key, handler as EventListener)
-      return () => this.errors.removeEventListener(key, handler as EventListener)
+      const subscription = this.errors.listen(key, onError)
+      return () => subscription.unsubscribe()
     }
     return () => undefined
   }
@@ -243,7 +242,7 @@ export class SWR {
   /**
    * Gets an element from the cache. The difference
    * with the get is that this method returns a promise
-   * that will resolve the the value. If there's no item
+   * that will resolve the value. If there's no item
    * in the cache, it will wait for it before resolving.
    */
   getOrWait<D = any>(key: SWRKey): Promise<D> {
@@ -252,8 +251,8 @@ export class SWR {
       const current = this.get(key)
       if (current) return resolve(current)
       // Subscribe to the cache and wait.
-      const unsubcsribe = this.subscribe(key, (data: D) => {
-        unsubcsribe()
+      const unsubscribe = this.subscribe(key, (data: D) => {
+        unsubscribe()
         return resolve(data)
       })
     })
