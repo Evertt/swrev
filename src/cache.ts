@@ -143,7 +143,7 @@ export class DefaultCache implements SWRCache {
   /**
    * Stores the elements of the cache in a key-value pair.
    */
-  private elements: Map<string, CacheItem> = new Map()
+  protected elements: Map<string, CacheItem> = new Map()
 
   /**
    * Stores the event target instance to dispatch and receive events.
@@ -155,7 +155,7 @@ export class DefaultCache implements SWRCache {
    * It also broadcasts the value change if needed or deletes the key if
    * the value resolves to undefined or null.
    */
-  private resolve<D>(key: SWRKey, value: CacheItem<D>) {
+  protected resolve<D>(key: SWRKey, value: CacheItem<D>) {
     Promise.resolve(value.data).then((detail) => {
       if (detail === undefined || detail === null) {
         // The value resolved to undefined, and we delete

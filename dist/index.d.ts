@@ -120,7 +120,7 @@ declare class DefaultCache implements SWRCache {
     /**
      * Stores the elements of the cache in a key-value pair.
      */
-    private elements;
+    protected elements: Map<string, CacheItem>;
     /**
      * Stores the event target instance to dispatch and receive events.
      */
@@ -130,7 +130,7 @@ declare class DefaultCache implements SWRCache {
      * It also broadcasts the value change if needed or deletes the key if
      * the value resolves to undefined or null.
      */
-    private resolve;
+    protected resolve<D>(key: SWRKey, value: CacheItem<D>): void;
     /**
      * Gets an element from the cache.
      *
