@@ -106,7 +106,7 @@ export class SWR {
     let data: undefined | Promise<D | undefined> = undefined
 
     // Check the cache for the expiration.
-    if (force || !this.cache.has(key) || (this.cache.has(key) && this.cache.get(key).hasExpired())) {
+    if (force || !this.cache.has(key) || this.cache.get(key).hasExpired()) {
       // We have a forced fetch or there's an item in the
       // cache and it has expired, thus we need to refetch the data.
       data = this.requestData(key, fetcher)
